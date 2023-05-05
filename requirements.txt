@@ -1,0 +1,4 @@
+b2sdk
+python-dotenv
+ipykernel
+dvc[s3]
