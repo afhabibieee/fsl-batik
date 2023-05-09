@@ -1,3 +1,8 @@
+# Some code adapted from the easyfsl library
+# Copyright (c) Bennequin, E (Sicara).
+# Licensed under the MIT License
+# Original repository: https://github.com/sicara/easy-few-shot-learning
+
 import os
 import sys
 import json
