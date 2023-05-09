@@ -15,4 +15,7 @@ N_TRAINING_EPISODES = 500
 N_VALIDATION_TASK = 100
 N_WORKERS = 2
 
+TRAIN_SIZE = 0.6
+RANDOM_SEED = 42
+
 DEVICE = device('cuda' if cuda.is_available() else 'cpu')

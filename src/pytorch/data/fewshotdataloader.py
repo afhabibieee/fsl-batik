@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 current_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if current_path not in sys.path:
     sys.path.append(current_path)
-from configs import BATIK_SPECS_DIR, IMAGE_SIZE, N_WAY, N_SHOT, N_QUERY, N_TRAINING_EPISODES, N_WORKERS
+from configs import BATIK_SPECS_DIR, IMAGE_SIZE, N_WAY, N_SHOT, N_QUERY, N_TRAINING_EPISODES, N_WORKERS, TRAIN_SIZE, RANDOM_SEED
 
 def name_roots(motifs):
     """
@@ -91,6 +91,8 @@ def generate_loader(
     n_query=N_QUERY,
     n_task=N_TRAINING_EPISODES,
     n_workers=N_WORKERS,
+    train_size=TRAIN_SIZE,
+    seed=RANDOM_SEED,
     **kwargs
 ):
     """
@@ -104,8 +106,15 @@ def generate_loader(
         n_query (int, optional): Number of samples per class in the query set.
         n_task (int, optional): Number of task (iterations).
         n_workers (int, optional): Number of worker processes to use for data loading.
+        train_size (float): The proportion of motifs to be included in the training set.
+        seed (int): The seed value for randomization.
         **kwargs: Additional keyword arguments to be passed to the ImageDataset constructor.
+
+    Returns:
+        DataLoader: A DataLoader object for few-shot learning using the Batik dataset.
     """
+    create_jsonfile(train_size, seed)
+
     training = True if split=='train' else False
     dataset = batik(split=split, image_size=image_size, training=training, **kwargs)
     batch_sampler = FewShotBatchSampler(dataset, n_way, n_shot, n_query, n_task)
