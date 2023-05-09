@@ -2,7 +2,11 @@ b2sdk
 python-dotenv
 ipykernel
 dvc[s3]
---index-url https://download.pytorch.org/whl/nightly/cpu
+
+--extra-index-url https://download.pytorch.org/whl/nightly/cpu
 --pre
 torch
 torchvision
+
+opencv-torchvision-transforms-yuzhiyang
+matplotlib
