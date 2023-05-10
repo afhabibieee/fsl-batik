@@ -9,12 +9,14 @@ class PrototypicalNetwork(torch.nn.Module):
 
     A prototypical network for few-shot learning.
 
-    Prototypical network extract feature vectors for both support and query images. Then it
-    computes the mean of support features for each class (called prototypes), and predict
-    classification scores for query images based on their euclidean distance to the prototypes.
+    Prototypical network extract feature vectors for both support and query images. Then it computes the mean
+    of support features for each class (called prototypes), and predict classification scores for query images
+    based on their euclidean distance to the prototypes.
 
     Args:
         backbone_name (str): The name of the backbone model architecture.
+                             Take a look at the candidate pretrained models that match the backbone names in
+                             the following link: https://pytorch.org/vision/stable/models.html
         dropout_rate (float): The dropout rate for the backbone model.
         use_softmax (bool, optional): Flag indicating whether to apply softmax to the scores (default: False).
     """
