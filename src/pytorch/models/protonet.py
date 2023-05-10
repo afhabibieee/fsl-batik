@@ -15,20 +15,18 @@ class PrototypicalNetwork(torch.nn.Module):
 
     Args:
         backbone_name (str): The name of the backbone model architecture.
-        variant_depth (int): The depth or variant of the backbone model.
         dropout_rate (float): The dropout rate for the backbone model.
         use_softmax (bool, optional): Flag indicating whether to apply softmax to the scores (default: False).
     """
     def __init__(
         self,
         backbone_name,
-        variant_depth,
         dropout_rate,
         use_softmax = False
     ):
         super(PrototypicalNetwork, self).__init__()
         self.use_softmax = use_softmax
-        self.backbone = self.get_backbone(backbone_name, variant_depth, dropout_rate)
+        self.backbone = self.get_backbone(backbone_name, dropout_rate)
     
     def forward(
         self,
@@ -58,7 +56,7 @@ class PrototypicalNetwork(torch.nn.Module):
         return self.softmax_if_needed(scores) if self.use_softmax else scores
 
     @staticmethod
-    def get_backbone(backbone_name, variant_depth, dropout_rate):
+    def get_backbone(backbone_name, dropout_rate):
         """
         Get the backbone model for the prototypical network.
 
