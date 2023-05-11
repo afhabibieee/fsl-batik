@@ -3,11 +3,12 @@
 """ A python script for working with Backblaze B2 """
 
 import b2sdk.v2 as b2
-import os, sys, subprocess, json
-from dotenv import load_dotenv
+import os, sys, json
+import argparse
 
-master_id = input('Enter your account id: ')
-master_app_key = input('Enter your application key: ')
+master_id = input('Enter your B2 account id: ')
+master_app_key = input('Enter your B2 application key: ')
+mlflow_pass = input('Enter your MLFlow pass/token: ')
 
 # Define the name of the bucket and key that want to create
 bucket_name = 'allBatik'
@@ -34,13 +35,6 @@ def create_load_bucket(b2_api):
 
     return bucket
 
-# Checks if the b2 attributes are already in the .env file
-def check_prefix_b2_existence():
-    cmd = "grep -E '^B2' .env | xargs"
-    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-    output = result.stdout.strip()
-    return bool(output)  # True if output is not empty, False otherwise
-
 # Create new application key with access to spesific bucket
 def create_load_app_key(b2_api, bucket):
     # Get a name of existing keys
@@ -53,7 +47,7 @@ def create_load_app_key(b2_api, bucket):
         print('Your key already exists')
         downloaded_file = bucket.download_file_by_name(file_name)
         downloaded_file.save_to(file_name, 'wb+')
-        with open(file_name, 'r') as file:
+        with open(file_name, 'rb') as file:
             content = json.load(file)
         os.remove(file_name)
         
@@ -69,32 +63,47 @@ def create_load_app_key(b2_api, bucket):
             sys.exit(f"Error creating application key: {e}")
         
         # Upload id and keys in bucket
-        content = {'id':app_key.id_, 'key':app_key.application_key}
+        content = {
+            'id':app_key.id_,
+            'key':app_key.application_key,
+        }
         file_data = json.dumps(content).encode()
         bucket.upload_bytes(file_data, file_name, content_type='application/json')
     
     return content.values()
 
-# Init DVC
-def main():
+# Write .env file
+def write_dotenv():
     info, b2_api = auth()
     bucket = create_load_bucket(b2_api)
     key_id, application_key = create_load_app_key(b2_api, bucket)
 
-    with open(".env", "w+") as f:
-        # Write the key ID and application key to the .env file
-        f.write(f"\nB2_KEY_ID={key_id}\n")
+    with open(".env", "w") as f:
+        # Write the key ID, application key and ect
+        f.write(f"B2_KEY_ID={key_id}\n")
         f.write(f"B2_APPLICATION_KEY={application_key}\n")
 
-        # Get the endpoint URL for the bucket
+        # the endpoint URL for the bucket
         endpoint_url = info.get_s3_api_url()
         f.write(f"B2_URL_ENDPOINT={endpoint_url}\n")
         # S3 URL format
         remote_url = f's3://{bucket_name}/initial_data'
         f.write(f"B2_URL_REMOTE={remote_url}\n")
+
+        # MLFlow tracking uri, username, and password/token
+        mlflow_username = 'afhabibieee'
+        tracking_uri = f'https://dagshub.com/{mlflow_username}/fsl-batik.mlflow'
+        f.write(f"MLFLOW_TRACKING_URI={tracking_uri}\n")
+        f.write(f"MLFLOW_TRACKING_USERNAME={mlflow_username}\n")
+        f.write(f"MLFLOW_TRACKING_PASSWORD={mlflow_pass}\n")
     
     os.system("echo '.env' >> .gitignore")
+    return key_id, application_key, endpoint_url, remote_url
 
+# Init DVC
+def init_dvc():
+    key_id, application_key, endpoint_url, remote_url = write_dotenv()
+    
     if os.path.exists('.dvc'):
         os.system('rm -f .dvc/config')
         os.system('dvc init -f')
@@ -106,6 +115,28 @@ def main():
     os.system(f'dvc remote modify myremote endpointurl {endpoint_url}')
     os.system(f'dvc remote modify myremote --local access_key_id {key_id}')
     os.system(f'dvc remote modify myremote --local secret_access_key {application_key}')
+
+def pull_dvc():
+    key_id, application_key, _, _ = write_dotenv()
+
+    # DVC user configuration
+    os.system(f'dvc remote modify myremote --local access_key_id {key_id}')
+    os.system(f'dvc remote modify myremote --local secret_access_key {application_key}')
+    
+    os.system('dvc pull -r myremote >& dev_null')
+    # Make sure that all files were pulled
+    os.system('dvc pull -r myremote >& dev_null')
+
+def main():
+    parser = argparse.ArgumentParser(description='Init or Pull DVC data and Configure MLFlow')
+    parser.add_argument('--mode', default=None, help='init/pull')
+    params = parser.parse_args()
+    if params.mode == 'init':
+        init_dvc()
+    elif params.mode == 'pull':
+        pull_dvc()
+    else:
+        ValueError('The arg entered is not available')
 
 if __name__=='__main__':
     main()
