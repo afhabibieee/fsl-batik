@@ -3,13 +3,13 @@ import sys
 import random
 import json
 from pathlib import Path
-from fewshotdataset import ImageDataset, FewShotBatchSampler
+from data.fewshotdataset import ImageDataset, FewShotBatchSampler
 from torch.utils.data import DataLoader
 
 current_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if current_path not in sys.path:
     sys.path.append(current_path)
-from configs import BATIK_SPECS_DIR, IMAGE_SIZE, N_WAY, N_SHOT, N_QUERY, N_TRAINING_EPISODES, N_WORKERS, TRAIN_SIZE, RANDOM_SEED
+from configs import BATIK_DIR, BATIK_SPECS_DIR, IMAGE_SIZE, N_WAY, N_SHOT, N_QUERY, N_TRAINING_EPISODES, N_WORKERS, TRAIN_SIZE, RANDOM_SEED
 
 def name_roots(motifs):
     """
@@ -25,7 +25,7 @@ def name_roots(motifs):
     """
     return {
         'class_names': motifs,
-        'class_roots': [os.path.join(BATIK_SPECS_DIR, motif) for motif in motifs]
+        'class_roots': [os.path.join(BATIK_DIR, motif) for motif in motifs]
     }
 
 def create_jsonfile(train_size, seed):
@@ -41,19 +41,20 @@ def create_jsonfile(train_size, seed):
     """
     random.seed(seed)
 
-    motifs = sorted(os.listdir(BATIK_SPECS_DIR))
+    motifs = sorted(os.listdir(BATIK_DIR))
     n_train_class = int(round(train_size*len(motifs)))
     train_motifs = random.sample(motifs, k=n_train_class)
 
     val_test = list(set(motifs).difference(train_motifs))
-    val_motifs = val_test[:round(len(val_test)/2)]
-    test_motifs = val_test[round(len(val_test)/2):]
+    n_val_class = int(round(len(val_test)/2))
+    val_motifs = val_test[:n_val_class]
+    test_motifs = val_test[n_val_class:]
 
     files = ['train.json', 'val.json', 'test.json']
     data = [train_motifs, val_motifs, test_motifs]
 
     for file, content in zip(files, data):
-        with open(os.path.join('data', file), 'w') as outfile:
+        with open(os.path.join(BATIK_SPECS_DIR, file), 'w') as outfile:
             json.dump(name_roots(content), outfile, indent=4)
 
     random.seed(None)

@@ -13,14 +13,11 @@ from pathlib import Path
 import cv2 as cv
 from cvtorchvision import cvtransforms as T
 from torch.utils.data import Dataset, Sampler
-import collections
+#import collections
 
-current_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if current_path not in sys.path:
-    sys.path.append(current_path)
 from configs import IMAGENET_MEAN, IMAGENET_STD
 
-collections.Iterable = collections.abc.Iterable
+#collections.Iterable = collections.abc.Iterable
 
 class ImageDataset(Dataset):
     def __init__(
@@ -94,10 +91,10 @@ class ImageDataset(Dataset):
             class_images = [
                 str(img_path)
                 for img_path in sorted(Path(class_root).glob('*'))
-                if img_path.is_file() and img_path.suffix.lower() in formats
+                if img_path.is_file() and (img_path.suffix.lower() in formats)
             ]
             images += class_images
-            labels += class_id * len(class_images)
+            labels += [class_id] * len(class_images)
             
         if len(labels) == 0:
             warnings.warn(UserWarning(
@@ -165,6 +162,15 @@ class ImageDataset(Dataset):
         """
         return self.labels
 
+    def number_of_classes(self):
+        """
+        Get the the number of unique classes in the dataset.
+
+        Returns:
+            int: The number of unique classes.
+        """
+        return len(self.class_names)
+
 class FewShotBatchSampler(Sampler):
     def __init__(
         self,
@@ -214,12 +220,14 @@ class FewShotBatchSampler(Sampler):
             iterator: An iterator over the tasks.
         """
         for _ in range(self.n_task):
-            yield torch.cat([
-                torch.tensor(random.sample(
-                    self.items_per_label[label], self.n_shot + self.n_query
-                ))
-                for label in random.sample(self.items_per_label.keys(), self.n_way)
-            ]).tolist()
+            yield torch.cat(
+                [
+                    torch.tensor(random.sample(
+                        self.items_per_label[label], self.n_shot + self.n_query
+                    ))
+                    for label in random.sample(self.items_per_label.keys(), self.n_way)
+                ]
+            ).tolist()
     
     def collate_fn(self, input_data):
         """

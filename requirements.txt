@@ -11,3 +11,4 @@ torchvision
 opencv-torchvision-transforms-yuzhiyang
 matplotlib
 mlflow
+numpy

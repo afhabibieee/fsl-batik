@@ -1,0 +1,24 @@
+{
+    "class_names": [
+        "Batik Pala",
+        "Batik Betawi",
+        "Batik Bali",
+        "Batik Parang",
+        "Batik Geblek Renteng",
+        "Batik Dayak",
+        "Batik Megamendung",
+        "Batik Cendrawasih",
+        "Batik Ikat Celup"
+    ],
+    "class_roots": [
+        "/home/habibie/Documents/fsl-batik/data/batik/Batik Pala",
+        "/home/habibie/Documents/fsl-batik/data/batik/Batik Betawi",
+        "/home/habibie/Documents/fsl-batik/data/batik/Batik Bali",
+        "/home/habibie/Documents/fsl-batik/data/batik/Batik Parang",
+        "/home/habibie/Documents/fsl-batik/data/batik/Batik Geblek Renteng",
+        "/home/habibie/Documents/fsl-batik/data/batik/Batik Dayak",
+        "/home/habibie/Documents/fsl-batik/data/batik/Batik Megamendung",
+        "/home/habibie/Documents/fsl-batik/data/batik/Batik Cendrawasih",
+        "/home/habibie/Documents/fsl-batik/data/batik/Batik Ikat Celup"
+    ]
+}
