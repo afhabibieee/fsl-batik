@@ -4,6 +4,7 @@ import datetime
 from dotenv import load_dotenv
 import mlflow
 import torch
+import torch._dynamo as dynamo
 # import torch._dynamo.config
 # torch._dynamo.config.suppress_errors = True
 # torch._dynamo.config.verbose = True
@@ -65,7 +66,7 @@ def main():
             params.dropout,
             use_softmax=params.use_softmax
         )
-        model = torch.compile(model, backend='eager') if params.compile else model
+        model = torch.compile(model, backend=params.backend) if params.compile else model
 
         criterion = torch.nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(model.parameters(), lr=params.lr, weight_decay=params.wd)
@@ -80,8 +81,7 @@ def main():
             )
 
             print(
-                'Epoch: {}/{}\n'.format(epoch, params.epochs),
-                'loss: {:.4f} - '.format(train_loss),
+                '\nloss: {:.4f} - '.format(train_loss),
                 'val_loss: {:.4f} - '.format(val_loss),
                 'acc: {:.4f} - '.format(train_acc),
                 'val_acc: {:.4f}\n'.format(val_acc),

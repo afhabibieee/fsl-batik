@@ -64,7 +64,6 @@ class PrototypicalNetwork(torch.nn.Module):
 
         Args:
             backbone_name (str): The name of the backbone model architecture.
-            variant_depth (int): The depth or variant of the backbone model.
             dropout_rate (float): The dropout rate for the backbone model.
 
         Returns:
@@ -83,6 +82,7 @@ class PrototypicalNetwork(torch.nn.Module):
         if dropout_rate: trunk.append(torch.nn.Dropout(dropout_rate))
         trunk.append(torch.nn.Flatten())
         pretrained.classifier = torch.nn.Sequential(*trunk)
+        torch.compile(pretrained, backend='inductor')
 
         return pretrained
 

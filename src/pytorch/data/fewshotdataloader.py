@@ -39,17 +39,18 @@ def create_jsonfile(train_size, seed):
     Returns:
         None
     """
-    random.seed(seed)
 
     motifs = sorted(os.listdir(BATIK_DIR))
     n_train_class = int(round(train_size*len(motifs)))
+    random.seed(seed)
     train_motifs = random.sample(motifs, k=n_train_class)
 
-    val_test = list(set(motifs).difference(train_motifs))
+    val_test = sorted(list(set(motifs).difference(train_motifs)))
     n_val_class = int(round(len(val_test)/2))
+    random.seed(seed)
     val_motifs = random.sample(val_test, k=n_val_class)
 
-    test_motifs = list(set(val_test).difference(val_motifs))
+    test_motifs = sorted(list(set(val_test).difference(val_motifs)))
 
     files = ['train.json', 'val.json', 'test.json']
     data = [train_motifs, val_motifs, test_motifs]

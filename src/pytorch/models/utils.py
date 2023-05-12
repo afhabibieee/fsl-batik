@@ -101,7 +101,7 @@ def train_step(model, criterion, optimizer, epoch, train_loader):
             }
         )
 
-    train_loss /= train_total
+    train_loss /= len(train_loader)
     train_acc = train_correct / train_total
     return train_loss, train_acc
 
@@ -155,7 +155,7 @@ def val_step(model, criterion, epoch, val_loader):
                 }
             )
 
-    val_loss /= val_total
+    val_loss /= len(val_loader)
     val_acc = val_correct / val_total
     return val_loss, val_acc
 

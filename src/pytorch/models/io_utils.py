@@ -16,9 +16,10 @@ def train_args():
     parser.add_argument('--epochs',         type=int,   default=configs.EPOCHS,                 help='Number of passes of the entire training')
     parser.add_argument('--lr',             type=float, default=configs.LEARNING_RATE,          help='Step size at each iteration while moving toward a minimum of a loss function')
     parser.add_argument('--wd',             type=float, default=configs.WEIGHT_DECAY,           help='Decreasing the learning rate during training')
-    parser.add_argument('--backbone_name',  type=str,   default=None,                           help='eg: resnet18, ect')
-    parser.add_argument('--dropout',        type=float, default=0.0,                           help='Randomly zeroes some of the elements before flatten on backbone')
+    parser.add_argument('--backbone_name',  type=str,   default='resnet18',                     help='eg. resnet18, ect')
+    parser.add_argument('--dropout',        type=float, default=0.0,                            help='Randomly zeroes some of the elements before flatten on backbone')
     parser.add_argument('--use_softmax',    type=bool,  default=False,                          help='Flag indicating whether to apply softmax to the scores')
     parser.add_argument('--compile',        type=bool,  default=True,                           help='New in PyTorch 2.0 compile the model')
+    parser.add_argument('--backend',        type=str,   default='eager',                        help='New in PyTorch 2.0 training & inference backends (eg. inductor, aot_ts_nvfuser, cudagraphs, ect')
 
     return parser.parse_args()
