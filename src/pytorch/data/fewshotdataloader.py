@@ -114,9 +114,13 @@ def generate_loader(
     Returns:
         DataLoader: A DataLoader object for few-shot learning using the Batik dataset.
     """
-    create_jsonfile(train_size, seed)
 
-    training = True if split=='train' else False
+    if split=='train':
+        training = True
+        create_jsonfile(train_size, seed)
+    else:
+        training = False
+
     dataset = batik(split=split, image_size=image_size, training=training, **kwargs)
     batch_sampler = FewShotBatchSampler(dataset, n_way, n_shot, n_query, n_task)
 

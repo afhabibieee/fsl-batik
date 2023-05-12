@@ -13,11 +13,11 @@ from pathlib import Path
 import cv2 as cv
 from cvtorchvision import cvtransforms as T
 from torch.utils.data import Dataset, Sampler
-#import collections
+import collections
 
 from configs import IMAGENET_MEAN, IMAGENET_STD
 
-#collections.Iterable = collections.abc.Iterable
+collections.Iterable = collections.abc.Iterable
 
 class ImageDataset(Dataset):
     def __init__(
@@ -212,7 +212,7 @@ class FewShotBatchSampler(Sampler):
         """
         return self.n_task
     
-    def __iter___(self):
+    def __iter__(self):
         """
         Iterate over the tasks.
 

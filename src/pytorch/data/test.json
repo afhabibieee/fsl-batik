@@ -1,12 +1,12 @@
 {
     "class_names": [
-        "Batik Sekar Jagad",
-        "Batik Insang",
-        "Batik Tambal"
+        "Batik Poleng",
+        "Batik Lasem",
+        "Batik Insang"
     ],
     "class_roots": [
-        "/home/habibie/Documents/fsl-batik/data/batik/Batik Sekar Jagad",
-        "/home/habibie/Documents/fsl-batik/data/batik/Batik Insang",
-        "/home/habibie/Documents/fsl-batik/data/batik/Batik Tambal"
+        "/home/habibie/Documents/fsl-batik/data/batik/Batik Poleng",
+        "/home/habibie/Documents/fsl-batik/data/batik/Batik Lasem",
+        "/home/habibie/Documents/fsl-batik/data/batik/Batik Insang"
     ]
 }

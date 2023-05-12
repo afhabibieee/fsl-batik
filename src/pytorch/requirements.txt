@@ -1,0 +1,10 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+--extra-index-url https://download.pytorch.org/whl/cpu
+torchvision
+--extra-index-url https://download.pytorch.org/whl/cpu
+torchdynamo
+
+opencv-torchvision-transforms-yuzhiyang
+matplotlib
+numpy

@@ -4,6 +4,9 @@ from torch import device, cuda
 BATIK_DIR = os.path.abspath('../../data/batik')
 BATIK_SPECS_DIR = os.path.abspath('data')
 
+MODEL_DIR = os.path.abspath('../../model/pytorch/')
+MODEL_CHECKPOINT_DIR = os.path.abspath('../../model/pytorch/checkpoint')
+
 IMAGE_SIZE = 84
 IMAGENET_MEAN  = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]

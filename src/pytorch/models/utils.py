@@ -44,7 +44,7 @@ def evaluate_per_task(model, criterion, support_images, support_labels, query_im
     # Calculate loss
     loss = criterion(classification_scores, query_labels)
 
-    correct = (torch.max(classification_scores.detach(), 1)[1]==query_labels).sum().item()
+    correct = (torch.max(classification_scores.detach().data, 1)[1]==query_labels).sum().item()
     total = query_labels.shape[0]
     return loss, correct, total
 

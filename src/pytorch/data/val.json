@@ -1,12 +1,12 @@
 {
     "class_names": [
+        "Batik Tambal",
         "Batik Kawung",
-        "Batik Poleng",
-        "Batik Lasem"
+        "Batik Sekar Jagad"
     ],
     "class_roots": [
+        "/home/habibie/Documents/fsl-batik/data/batik/Batik Tambal",
         "/home/habibie/Documents/fsl-batik/data/batik/Batik Kawung",
-        "/home/habibie/Documents/fsl-batik/data/batik/Batik Poleng",
-        "/home/habibie/Documents/fsl-batik/data/batik/Batik Lasem"
+        "/home/habibie/Documents/fsl-batik/data/batik/Batik Sekar Jagad"
     ]
 }
