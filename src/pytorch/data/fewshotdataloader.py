@@ -47,8 +47,9 @@ def create_jsonfile(train_size, seed):
 
     val_test = list(set(motifs).difference(train_motifs))
     n_val_class = int(round(len(val_test)/2))
-    val_motifs = val_test[:n_val_class]
-    test_motifs = val_test[n_val_class:]
+    val_motifs = random.sample(val_test, k=n_val_class)
+
+    test_motifs = list(set(val_test).difference(val_motifs))
 
     files = ['train.json', 'val.json', 'test.json']
     data = [train_motifs, val_motifs, test_motifs]

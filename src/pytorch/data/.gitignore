@@ -1,1 +1,3 @@
-*.json
+train.json
+val.json
+test.json

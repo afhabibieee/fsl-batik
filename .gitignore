@@ -1,4 +1,4 @@
 .env
 __pycache__/
 model/pytorch/checkpoint
-**/*json
+src/pytorch/data/**/*.json
