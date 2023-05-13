@@ -6,9 +6,9 @@ import b2sdk.v2 as b2
 import os, sys, json
 import argparse
 
-master_id = input('Enter your B2 account id: ')
-master_app_key = input('Enter your B2 application key: ')
-mlflow_pass = input('Enter your MLFlow pass/token: ')
+master_id = ''
+master_app_key = ''
+mlflow_pass = ''
 
 # Define the name of the bucket and key that want to create
 bucket_name = 'allBatik'
@@ -130,7 +130,16 @@ def pull_dvc():
 def main():
     parser = argparse.ArgumentParser(description='Init or Pull DVC data and Configure MLFlow')
     parser.add_argument('--mode', default=None, help='init/pull')
+    parser.add_argument('--id', default=None, help='B2 account id')
+    parser.add_argument('--app_key', default=None, help='B2 application key')
+    parser.add_argument('--mlflow_key', default=None, help='MLFlow pass/token')
     params = parser.parse_args()
+
+    global master_id, master_app_key, mlflow_pass
+    master_id = params.id
+    master_app_key = params.app_key
+    mlflow_pass = params.mlflow_key
+
     if params.mode == 'init':
         init_dvc()
     elif params.mode == 'pull':
