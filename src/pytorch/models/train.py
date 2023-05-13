@@ -23,6 +23,12 @@ from models.utils import train_per_epoch
 
 def main():
     load_dotenv()
+    if DEVICE.type.lower() == 'cuda':
+        torch.multiprocessing.set_start_method('spawn')
+
+    # Set the device globally
+    torch.set_default_device(DEVICE)
+
     today = datetime.date.today().strftime('%Y-%m-%d')
     mlflow.set_experiment(today)
 
@@ -30,9 +36,6 @@ def main():
 
     mlflow.end_run()
     with mlflow.start_run(experiment_id=get_experiment_id(today)):
-        # Set the device globally
-        torch.set_default_device(DEVICE)
-        
         train_loader = generate_loader(
             'train',
             image_size=params.img_size,
@@ -65,7 +68,7 @@ def main():
             params.backbone_name,
             params.dropout,
             use_softmax=params.use_softmax
-        )
+        ).to(DEVICE)
         model = torch.compile(model, backend=params.backend) if params.compile else model
 
         criterion = torch.nn.CrossEntropyLoss()
@@ -85,13 +88,14 @@ def main():
                 'val_loss: {:.4f} - '.format(val_loss),
                 'acc: {:.4f} - '.format(train_acc),
                 'val_acc: {:.4f}\n'.format(val_acc),
-                'train_epoch_time: {:.4f} - '.format(train_epoch_time),
-                'val_epoch_time: {:.4f}\n'.format(val_epoch_time)
+                'train_time: {:.4f} - '.format(train_epoch_time),
+                'val_time: {:.4f}\n'.format(val_epoch_time)
             )
 
             if val_acc > best_val_acc:
                 best_val_acc = val_acc
-                # mlflow.pytorch.log_model(model, 'model')
+                if not os.path.exists(MODEL_CHECKPOINT_DIR):
+                    os.makedirs(MODEL_CHECKPOINT_DIR)
                 torch.save(model.state_dict(), os.path.join(MODEL_CHECKPOINT_DIR, 'model.pt'))
                 mlflow.log_artifact(os.path.join(MODEL_CHECKPOINT_DIR, 'model.pt'), artifact_path='model')
                 print("Yeay! we found a new best model :')\n")
@@ -102,11 +106,12 @@ def main():
                     'val_loss': val_loss,
                     'train_acc': train_acc,
                     'val_acc': val_acc,
-                    'train_epoch_time': train_epoch_time,
-                    'val_epoch_time': val_epoch_time
+                    'train_time': train_epoch_time,
+                    'val_time': val_epoch_time
                 },
                 step=epoch
             )
+    mlflow.end_run()
 
 if __name__=='__main__':
     main()
