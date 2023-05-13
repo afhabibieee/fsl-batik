@@ -81,9 +81,15 @@ class PrototypicalNetwork(torch.nn.Module):
         trunk = []
         if dropout_rate: trunk.append(torch.nn.Dropout(dropout_rate))
         trunk.append(torch.nn.Flatten())
-        pretrained.classifier = torch.nn.Sequential(*trunk)
-        torch.compile(pretrained, backend='inductor')
 
+        try:
+            classifier = pretrained.classifier
+        except AttributeError:
+            pretrained.fc = torch.nn.Sequential(*trunk)
+        else:
+            pretrained.classifier = torch.nn.Sequential(*trunk)
+
+        # torch.compile(pretrained, backend='inductor')
         return pretrained
 
     @staticmethod
