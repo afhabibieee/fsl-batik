@@ -123,9 +123,9 @@ def pull_dvc():
     os.system(f'dvc remote modify myremote --local access_key_id {key_id}')
     os.system(f'dvc remote modify myremote --local secret_access_key {application_key}')
     
-    os.system('dvc pull -r myremote >& dev_null')
+    os.system('dvc pull -r myremote')
     # Make sure that all files were pulled
-    os.system('dvc pull -r myremote >& dev_null')
+    os.system('dvc pull -r myremote')
 
 def main():
     parser = argparse.ArgumentParser(description='Init or Pull DVC data and Configure MLFlow')

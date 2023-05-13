@@ -3,3 +3,5 @@ python-dotenv
 ipykernel
 dvc[s3]
 mlflow
+matplotlib
+numpy
