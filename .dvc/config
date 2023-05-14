@@ -1,5 +1,0 @@
-[core]
-    remote = myremote
-['remote "myremote"']
-    url = s3://allBatik/initial_data
-    endpointurl = https://s3.us-east-005.backblazeb2.com
