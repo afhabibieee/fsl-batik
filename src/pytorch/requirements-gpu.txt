@@ -7,3 +7,4 @@ torch
 torchvision
 
 opencv-torchvision-transforms-yuzhiyang
+optuna

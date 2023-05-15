@@ -2,6 +2,7 @@ import sys
 import os
 import datetime
 from dotenv import load_dotenv
+import optuna
 import mlflow
 import torch
 import torch._dynamo as dynamo
@@ -20,6 +21,78 @@ from models.io_utils import train_args
 from models.protonet import PrototypicalNetwork
 from models.utils import get_experiment_id
 from models.utils import train_per_epoch
+
+def objective(
+    trial,
+    train_loader, val_loader,
+    backbone_name, compile, backend,
+    mode, epochs
+):
+    search_params = {
+        'learning_rate': trial.suggest_loguniform('learning_rate', 1e-5, 1e-2),
+        'optimizer': trial.suggest_categorical('optimizer', ['Adam', 'AdamW', 'SGD']),
+        'weight_decay': trial.suggest_loguniform('weight_decay', 1e-7, 1e-3),
+        'dropout': trial.suggest_uniform('dropout', 0.0, 0.7)
+    }
+
+    model = PrototypicalNetwork(backbone_name, search_params['dropout']).to(DEVICE)
+    model = torch.compile(model, backend=backend) if compile else model
+
+    accuracy = fit_model(mode, search_params, train_loader, val_loader, model, epochs, trial=trial)
+    return accuracy
+
+
+def fit_model(mode, search_params, train_loader, val_loader, model, epochs, trial=None):
+    criterion = torch.nn.CrossEntropyLoss()
+    optimizer = getattr(torch.optim, search_params['optimizer'])(
+        model.parameters(), lr=search_params['learning_rate'], weight_decay=search_params['weight_decay']
+    )
+
+    best_val_acc = 0.0
+    for epoch in range(1, epochs+1):
+        train_loss, val_loss, train_acc, val_acc, train_epoch_time, val_epoch_time = train_per_epoch(
+            model, criterion, optimizer, epoch,
+            train_loader, val_loader
+        )
+
+        if mode == 'training':
+            print(
+                '\nloss: {:.4f} - '.format(train_loss),
+                'val_loss: {:.4f} - '.format(val_loss),
+                'acc: {:.4f} - '.format(train_acc),
+                'val_acc: {:.4f}\n'.format(val_acc),
+                'train_time: {:.4f} - '.format(train_epoch_time),
+                'val_time: {:.4f}\n'.format(val_epoch_time)
+            )
+
+            if val_acc > best_val_acc:
+                best_val_acc = val_acc
+                if not os.path.exists(MODEL_CHECKPOINT_DIR):
+                    os.makedirs(MODEL_CHECKPOINT_DIR)
+                torch.save(model.state_dict(), os.path.join(MODEL_CHECKPOINT_DIR, 'model.pt'))
+                mlflow.log_artifact(os.path.join(MODEL_CHECKPOINT_DIR, 'model.pt'), artifact_path='model')
+                print("Yeay! we found a new best model :')\n")
+
+            mlflow.log_metrics(
+                {
+                    'train_loss': train_loss,
+                    'val_loss': val_loss,
+                    'train_acc': train_acc,
+                    'val_acc': val_acc,
+                    'train_time': train_epoch_time,
+                    'val_time': val_epoch_time
+                },
+                step=epoch
+            )
+        else:
+            # Add prune mechanism
+            trial.report(val_acc, epoch)
+            if trial.should_prune():
+                raise optuna.exceptions.TrialPruned()
+
+    if mode == 'tuning':
+        return val_acc
+
 
 def main():
     load_dotenv()
@@ -60,8 +133,25 @@ def main():
 
         print('\nData loader was generated successfully.\n')
 
+        print('Hyperparameter tuning begins...\n')
+        study = optuna.create_study(
+            direction='maximize', sampler=optuna.samplers.TPESampler(), pruner=optuna.pruners.MedianPruner()
+        )
+        study.optimize(
+            lambda trial: objective(
+                trial, train_loader, val_loader,
+                params.backbone_name, params.compile, params.backend,
+                'tuning', params.epochs
+            ),
+            n_trials=params.epochs
+        )
+        best_trial = study.best_trial
+
+        print('Model training begins...\n')
+
         params_dict = vars(params)
-        params_dict['device'] = DEVICE.type.upper()
+        params_dict['device'] = DEVICE.type.lower()
+        params_dict.update(best_trial.params)
         mlflow.log_params(params_dict)
 
         model = PrototypicalNetwork(
@@ -70,47 +160,9 @@ def main():
             use_softmax=params.use_softmax
         ).to(DEVICE)
         model = torch.compile(model, backend=params.backend) if params.compile else model
+        
+        fit_model('training', best_trial, train_loader, val_loader, model, params.epochs)
 
-        criterion = torch.nn.CrossEntropyLoss()
-        optimizer = torch.optim.Adam(model.parameters(), lr=params.lr, weight_decay=params.wd)
-
-        print('Model training begins...\n')
-
-        best_val_acc = 0.0
-        for epoch in range(1, params.epochs+1):
-            train_loss, val_loss, train_acc, val_acc, train_epoch_time, val_epoch_time = train_per_epoch(
-                model, criterion, optimizer, epoch,
-                train_loader, val_loader
-            )
-
-            print(
-                '\nloss: {:.4f} - '.format(train_loss),
-                'val_loss: {:.4f} - '.format(val_loss),
-                'acc: {:.4f} - '.format(train_acc),
-                'val_acc: {:.4f}\n'.format(val_acc),
-                'train_time: {:.4f} - '.format(train_epoch_time),
-                'val_time: {:.4f}\n'.format(val_epoch_time)
-            )
-
-            if val_acc > best_val_acc:
-                best_val_acc = val_acc
-                if not os.path.exists(MODEL_CHECKPOINT_DIR):
-                    os.makedirs(MODEL_CHECKPOINT_DIR)
-                torch.save(model.state_dict(), os.path.join(MODEL_CHECKPOINT_DIR, 'model.pt'))
-                mlflow.log_artifact(os.path.join(MODEL_CHECKPOINT_DIR, 'model.pt'), artifact_path='model')
-                print("Yeay! we found a new best model :')\n")
-
-            mlflow.log_metrics(
-                {
-                    'train_loss': train_loss,
-                    'val_loss': val_loss,
-                    'train_acc': train_acc,
-                    'val_acc': val_acc,
-                    'train_time': train_epoch_time,
-                    'val_time': val_epoch_time
-                },
-                step=epoch
-            )
     mlflow.end_run()
 
 if __name__=='__main__':
