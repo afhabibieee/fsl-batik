@@ -182,7 +182,7 @@ def main():
                 params.backbone_name, params.compile, params.backend,
                 'tuning', params.epochs
             ),
-            n_trials=params.epochs * 2
+            n_trials=params.n_trials
         )
         best_trial = study.best_trial
 
@@ -194,6 +194,7 @@ def main():
         if replace == 'n':
             params_dict.update(best_trial.params)
         elif replace == 'y':
+            params_dict['epochs'] = int(input('epochs: '))
             params_dict['optimizer'] = input('Optmizer [Adam. AdamW, SGD]: ')
             params_dict['learning_rate'] = float(input('learning_rate: '))
             params_dict['weight_decay'] = float(input('weight_decay: '))

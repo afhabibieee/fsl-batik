@@ -24,5 +24,4 @@ RANDOM_SEED = 42
 DEVICE = device('cuda' if cuda.is_available() else 'cpu')
 
 EPOCHS = 3
-LEARNING_RATE = 1e-4
-WEIGHT_DECAY = 1e-5
+N_TRIALS = 6
