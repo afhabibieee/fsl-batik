@@ -210,7 +210,7 @@ def main():
         ).to(DEVICE)
         model = torch.compile(model, backend=params.backend) if params.compile else model
         
-        fit_model('training', params_dict, train_loader, val_loader, model, params.epochs)
+        fit_model('training', params_dict, train_loader, val_loader, model, params_dict['epochs'])
 
     mlflow.end_run()
 
