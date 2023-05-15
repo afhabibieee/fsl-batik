@@ -116,6 +116,10 @@ def fit_model(mode, search_params, train_loader, val_loader, model, epochs, tria
                 step=epoch
             )
         else:
+            # Add early stopping
+            if train_acc >= 0.9 and (train_acc-val_acc) > 0.5:
+                break
+
             # Add prune mechanism
             trial.report(val_acc, epoch)
             if trial.should_prune():
@@ -181,11 +185,20 @@ def main():
         )
         best_trial = study.best_trial
 
-        print('Model training begins...\n')
+        print('Model training begins...')
+        replace = input('Replace the best params of keep them? [y/n]: ')
 
         params_dict = vars(params)
         params_dict['device'] = DEVICE.type.lower()
-        params_dict.update(best_trial.params)
+        if replace == 'n':
+            params_dict.update(best_trial.params)
+        elif replace == 'y':
+            params_dict['optimizer'] = input('Optmizer [Adam. AdamW, SGD]: ')
+            params_dict['learning_rate'] = float(input('learning_rate: '))
+            params_dict['weight_decay'] = float(input('weight_decay: '))
+            params_dict['dropout'] = float(input('dropout: '))
+        else:
+            ValueError("It only accepts 'y/n' as input!")
         mlflow.log_params(params_dict)
 
         model = PrototypicalNetwork(
