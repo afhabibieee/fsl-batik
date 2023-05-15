@@ -14,6 +14,7 @@ def train_args():
     parser.add_argument('--n_val_task',     type=int,   default=configs.N_VALIDATION_TASK,      help='Number of task for meta validation')
     parser.add_argument('--n_workers',      type=int,   default=configs.N_WORKERS,              help='Number of concurrent processing')
     parser.add_argument('--epochs',         type=int,   default=configs.EPOCHS,                 help='Number of passes of the entire training')
+    parser.add_argument('--n_trials',       type=int,   default=configs.N_TRIALS,               help='Number of trials of the entire tuning')
     parser.add_argument('--backbone_name',  type=str,   default='resnet18',                     help='eg. resnet18, ect')
     parser.add_argument('--use_softmax',    type=bool,  default=False,                          help='Flag indicating whether to apply softmax to the scores')
     parser.add_argument('--compile',        type=bool,  default=True,                           help='New in PyTorch 2.0 compile the model')
