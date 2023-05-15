@@ -45,10 +45,10 @@ def objective(
         float: The accuracy of the model on the validation set.
     """
     search_params = {
-        'learning_rate': trial.suggest_loguniform('learning_rate', 1e-5, 1e-2),
         'optimizer': trial.suggest_categorical('optimizer', ['Adam', 'AdamW', 'SGD']),
-        'weight_decay': trial.suggest_loguniform('weight_decay', 1e-7, 1e-3),
-        'dropout': trial.suggest_uniform('dropout', 0.0, 0.7)
+        'learning_rate': trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True),
+        'weight_decay': trial.suggest_float('weight_decay', 1e-7, 1e-3, log=True),
+        'dropout': trial.suggest_float('dropout', 0.0, 0.7, step=0.1)
     }
 
     model = PrototypicalNetwork(backbone_name, search_params['dropout']).to(DEVICE)
@@ -128,7 +128,7 @@ def main():
     """
     Main function to run the training and hyperparameter tuning.
     """
-    
+
     load_dotenv()
     if DEVICE.type.lower() == 'cuda':
         torch.multiprocessing.set_start_method('spawn')
