@@ -115,15 +115,16 @@ def fit_model(mode, search_params, train_loader, val_loader, model, epochs, tria
                 },
                 step=epoch
             )
-        else:
-            # Add early stopping
-            if train_acc >= 0.9 and (train_acc-val_acc) > 0.5:
-                break
-
+        elif mode == 'tuning':
             # Add prune mechanism
             trial.report(val_acc, epoch)
             if trial.should_prune():
                 raise optuna.exceptions.TrialPruned()
+
+            # Add early stopping
+            if train_acc >= 0.9 and (train_acc-val_acc) > 0.05:
+                print("Early stopping at epoch {epoch} for trial {trial.number} with value {val_acc}.")
+                break
 
     if mode == 'tuning':
         return val_acc
