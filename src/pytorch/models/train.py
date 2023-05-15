@@ -123,7 +123,7 @@ def fit_model(mode, search_params, train_loader, val_loader, model, epochs, tria
 
             # Add early stopping
             if train_acc >= 0.9 and (train_acc-val_acc) > 0.05:
-                print("Early stopping at epoch {epoch} for trial {trial.number} with value {val_acc}.")
+                print(f"Early stopping at epoch {epoch} for trial {trial.number} with value {val_acc}.")
                 break
 
     if mode == 'tuning':
@@ -195,7 +195,7 @@ def main():
             params_dict.update(best_trial.params)
         elif replace == 'y':
             params_dict['epochs'] = int(input('epochs: '))
-            params_dict['optimizer'] = input('Optmizer [Adam. AdamW, SGD]: ')
+            params_dict['optimizer'] = input('Optmizer [Adam, AdamW, SGD]: ')
             params_dict['learning_rate'] = float(input('learning_rate: '))
             params_dict['weight_decay'] = float(input('weight_decay: '))
             params_dict['dropout'] = float(input('dropout: '))
