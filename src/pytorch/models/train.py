@@ -156,7 +156,7 @@ def main():
 
         model = PrototypicalNetwork(
             params.backbone_name,
-            params.dropout,
+            params_dict['dropout'],
             use_softmax=params.use_softmax
         ).to(DEVICE)
         model = torch.compile(model, backend=params.backend) if params.compile else model
