@@ -28,6 +28,22 @@ def objective(
     backbone_name, compile, backend,
     mode, epochs
 ):
+    """
+    Objective function for Optuna hyperparameter optimization.
+
+    Args:
+        trial (optuna.Trial): A trial is a process of evaluating an objective function.
+        train_loader (torch.utils.data.DataLoader): The data loader for training data.
+        val_loader (torch.utils.data.DataLoader): The data loader for validation data.
+        backbone_name (str): The name of the backbone network.
+        compile (bool): If True, compile the model using torch.jit.
+        backend (str): The backend used when compiling with torch.jit.
+        mode (str): The mode of operation, either 'training' or 'tuning'.
+        epochs (int): The number of epochs to train for.
+    
+    Returns:
+        float: The accuracy of the model on the validation set.
+    """
     search_params = {
         'learning_rate': trial.suggest_loguniform('learning_rate', 1e-5, 1e-2),
         'optimizer': trial.suggest_categorical('optimizer', ['Adam', 'AdamW', 'SGD']),
@@ -43,6 +59,21 @@ def objective(
 
 
 def fit_model(mode, search_params, train_loader, val_loader, model, epochs, trial=None):
+    """
+    Fit a model using the given parameters and data loaders.
+
+    Args:
+        mode (str): The mode of operation, either 'training' or 'tuning'.
+        search_params (dict): The hyperparameters to use for training.
+        train_loader (torch.utils.data.DataLoader): The data loader for training data.
+        val_loader (torch.utils.data.DataLoader): The data loader for validation data.
+        model (torch.nn.Module): The model to train.
+        epochs (int): The number of epochs to train for.
+        trial (optuna.Trial, optional): A trial is a process of evaluating an objective function.
+    
+    Returns:
+        float: The validation accuracy for 'tuning' mode.
+    """
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = getattr(torch.optim, search_params['optimizer'])(
         model.parameters(), lr=search_params['learning_rate'], weight_decay=search_params['weight_decay']
@@ -93,8 +124,11 @@ def fit_model(mode, search_params, train_loader, val_loader, model, epochs, tria
     if mode == 'tuning':
         return val_acc
 
-
 def main():
+    """
+    Main function to run the training and hyperparameter tuning.
+    """
+    
     load_dotenv()
     if DEVICE.type.lower() == 'cuda':
         torch.multiprocessing.set_start_method('spawn')
