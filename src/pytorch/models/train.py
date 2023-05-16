@@ -174,7 +174,7 @@ def main():
         params_dict = vars(params)
         params_dict['device'] = DEVICE.type.lower()
 
-        if not params.only_train():
+        if not params_dict['only_train']:
             print('Hyperparameter tuning begins...\n')
             study = optuna.create_study(
                 direction='maximize', sampler=optuna.samplers.TPESampler(), pruner=optuna.pruners.MedianPruner()
