@@ -25,3 +25,7 @@ DEVICE = device('cuda' if cuda.is_available() else 'cpu')
 
 EPOCHS = 3
 N_TRIALS = 6
+LEARNING_RATE = 1e-4
+WEIGHT_DECAY = 1e-7
+
+DROPOUT = 0.0
