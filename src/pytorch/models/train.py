@@ -146,69 +146,71 @@ def main():
 
     params = train_args()
 
+    train_loader = generate_loader(
+        'train',
+        image_size=params.img_size,
+        n_way=params.n_way,
+        n_shot=params.n_shot,
+        n_query=params.n_query,
+        n_task=params.n_train_task,
+        n_workers=params.n_workers,
+        train_size=params.train_size,
+        seed=params.seed_class
+    )
+
+    val_loader = generate_loader(
+        'val',
+        image_size=params.img_size,
+        n_way=params.n_way,
+        n_shot=params.n_shot,
+        n_query=params.n_query,
+        n_task=params.n_val_task,
+        n_workers=params.n_workers
+    )
+    print('\nData loader was generated successfully.\n')
+
     mlflow.end_run()
     with mlflow.start_run(experiment_id=get_experiment_id(today)):
-        train_loader = generate_loader(
-            'train',
-            image_size=params.img_size,
-            n_way=params.n_way,
-            n_shot=params.n_shot,
-            n_query=params.n_query,
-            n_task=params.n_train_task,
-            n_workers=params.n_workers,
-            train_size=params.train_size,
-            seed=params.seed_class
-        )
-
-        val_loader = generate_loader(
-            'val',
-            image_size=params.img_size,
-            n_way=params.n_way,
-            n_shot=params.n_shot,
-            n_query=params.n_query,
-            n_task=params.n_val_task,
-            n_workers=params.n_workers
-        )
-
-        print('\nData loader was generated successfully.\n')
-
-        print('Hyperparameter tuning begins...\n')
-        study = optuna.create_study(
-            direction='maximize', sampler=optuna.samplers.TPESampler(), pruner=optuna.pruners.MedianPruner()
-        )
-        study.optimize(
-            lambda trial: objective(
-                trial, train_loader, val_loader,
-                params.backbone_name, params.compile, params.backend,
-                'tuning', params.epochs
-            ),
-            n_trials=params.n_trials
-        )
-        best_trial = study.best_trial
-
-        print('Model training begins...')
-        replace = input('Replace the best params of keep them? [y/n]: ')
-
         params_dict = vars(params)
         params_dict['device'] = DEVICE.type.lower()
-        if replace == 'n':
-            params_dict.update(best_trial.params)
-        elif replace == 'y':
-            params_dict['epochs'] = int(input('epochs: '))
-            params_dict['optimizer'] = input('Optmizer [Adam, AdamW, SGD]: ')
-            params_dict['learning_rate'] = float(input('learning_rate: '))
-            params_dict['weight_decay'] = float(input('weight_decay: '))
-            params_dict['dropout'] = float(input('dropout: '))
-        else:
-            ValueError("It only accepts 'y/n' as input!")
+
+        if not params.only_train():
+            print('Hyperparameter tuning begins...\n')
+            study = optuna.create_study(
+                direction='maximize', sampler=optuna.samplers.TPESampler(), pruner=optuna.pruners.MedianPruner()
+            )
+            study.optimize(
+                lambda trial: objective(
+                    trial, train_loader, val_loader,
+                    params.backbone_name, params.compile, params.backend,
+                    'tuning', params.epochs
+                ),
+                n_trials=params.n_trials
+            )
+            best_trial = study.best_trial
+
+            replace = input('Replace the best params of keep them? [y/n]: ')
+            if replace == 'n':
+                params_dict.update(best_trial.params)
+            elif replace == 'y':
+                params_dict['epochs'] = int(input('epochs: '))
+                params_dict['optimizer'] = input('Optmizer [Adam, AdamW, SGD]: ')
+                params_dict['learning_rate'] = float(input('learning_rate: '))
+                params_dict['weight_decay'] = float(input('weight_decay: '))
+                params_dict['dropout'] = float(input('dropout: '))
+            else:
+                ValueError("It only accepts 'y/n' as input!")
+
+        print('Model training begins...')
+        
         mlflow.log_params(params_dict)
 
         model = PrototypicalNetwork(
-            params.backbone_name,
+            params_dict['backbone_name'],
             params_dict['dropout'],
-            use_softmax=params.use_softmax
+            use_softmax=params_dict['use_softmax']
         ).to(DEVICE)
-        model = torch.compile(model, backend=params.backend) if params.compile else model
+        model = torch.compile(model, backend=params_dict['backend']) if params_dict['compile'] else model
         
         fit_model('training', params_dict, train_loader, val_loader, model, params_dict['epochs'])
 
