@@ -1,7 +1,6 @@
 import time
 import mlflow
 import torch
-import numpy as np
 from configs import DEVICE
 from tqdm.auto import tqdm
 
