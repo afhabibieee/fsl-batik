@@ -208,6 +208,7 @@ def main():
         model = PrototypicalNetwork(
             params_dict['backbone_name'],
             params_dict['dropout'],
+            mode='training',
             use_softmax=params_dict['use_softmax']
         ).to(DEVICE)
         model = torch.compile(model, backend=params_dict['backend']) if params_dict['compile'] else model

@@ -5,3 +5,4 @@ dvc[s3]
 mlflow
 matplotlib
 numpy
+streamlit

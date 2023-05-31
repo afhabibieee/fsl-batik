@@ -5,6 +5,7 @@ BATIK_DIR = os.path.abspath('../../data/batik')
 BATIK_SPECS_DIR = os.path.abspath('data')
 
 MODEL_DIR = os.path.abspath('../../model/pytorch/')
+BEST_MODEL_DIR = os.path.abspath('../../model/pytorch/best-model')
 MODEL_CHECKPOINT_DIR = os.path.abspath('../../model/pytorch/checkpoint')
 
 IMAGE_SIZE = 84
@@ -19,7 +20,7 @@ N_VALIDATION_TASK = 100
 N_WORKERS = 2
 
 TRAIN_SIZE = 0.6
-RANDOM_SEED = 42
+RANDOM_SEED = 27
 
 DEVICE = device('cuda' if cuda.is_available() else 'cpu')
 

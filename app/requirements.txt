@@ -1,0 +1,10 @@
+streamlit
+streamlit-option-menu
+streamlit-tags
+plotly
+mlflow
+numpy
+b2sdk
+torch
+torchvision
+torchviz
