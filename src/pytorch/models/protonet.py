@@ -24,11 +24,12 @@ class PrototypicalNetwork(torch.nn.Module):
         self,
         backbone_name,
         dropout_rate,
+        mode,
         use_softmax = False
     ):
         super(PrototypicalNetwork, self).__init__()
         self.use_softmax = use_softmax
-        self.backbone = self.get_backbone(backbone_name, dropout_rate)
+        self.backbone = self.get_backbone(backbone_name, dropout_rate, mode)
     
     def forward(
         self,
@@ -58,7 +59,7 @@ class PrototypicalNetwork(torch.nn.Module):
         return self.softmax_if_needed(scores) if self.use_softmax else scores
 
     @staticmethod
-    def get_backbone(backbone_name, dropout_rate):
+    def get_backbone(backbone_name, dropout_rate, mode):
         """
         Get the backbone model for the prototypical network.
 
@@ -74,6 +75,7 @@ class PrototypicalNetwork(torch.nn.Module):
         module = importlib.import_module(module_name)
         
         try:
+            weights = 'DEFAULT' if mode == 'training' else None
             pretrained = getattr(module, backbone_name)(weights='DEFAULT')
         except ValueError:
             print('{} as the selected backbone was not found'.format(backbone_name))

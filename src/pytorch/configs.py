@@ -5,6 +5,7 @@ BATIK_DIR = os.path.abspath('../../data/batik')
 BATIK_SPECS_DIR = os.path.abspath('data')
 
 MODEL_DIR = os.path.abspath('../../model/pytorch/')
+BEST_MODEL_DIR = os.path.abspath('../../model/pytorch/best-model')
 MODEL_CHECKPOINT_DIR = os.path.abspath('../../model/pytorch/checkpoint')
 
 IMAGE_SIZE = 84
