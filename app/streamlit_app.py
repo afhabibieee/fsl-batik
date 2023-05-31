@@ -33,8 +33,7 @@ selected = option_menu(
 )
 
 if selected == 'Recognition':
-    # st.session_state.clear()
-    st.session_state
+    # st.session_state
     st.markdown("# #1 Let's find out what the batik pattern is! :male_mage:")
 
     tab1, tab2, tab3 = st.tabs([':file_folder: Data', ':robot_face: Model', ':mag: Inference'])
@@ -518,6 +517,7 @@ elif selected == 'Labeling':
             notification.success('Inference complete :)')
 
         if st.session_state['queries'] is not None and st.session_state.button3:
+            total_drift = 0 
             for i, query in enumerate(st.session_state['queries']):
                 with st.container():
                     col1, col2 = st.columns(2)
@@ -541,10 +541,10 @@ elif selected == 'Labeling':
                         pred_output.rename(columns={0: 'Values'}, inplace=True)
                         st.dataframe(pred_output, use_container_width=True)
                         
-                        calc_drift_count = 0
+                        drift_metric_count = 0
                         for calc in pred_output.loc[['Least confidence', 'Margin of cofidence', 'Ratio of confidence', 'Entropy'], 'Values']:
                             if calc > thresh:
-                                calc_drift_count += 1
+                                drift_metric_count += 1
                         
                         selected_class = st.selectbox(
                             "Predicted/labeled:",
@@ -554,12 +554,15 @@ elif selected == 'Labeling':
                         )
                         st.session_state[f'labeled_class_{i}'] = selected_class
 
-                    info_placeholder = st.empty()   
-                    if calc_drift_count > 0:
-                        info_placeholder.info('We found data drift and potential prediction errors! Time for re-labeling.', icon="ℹ️")    
+                    info_placeholder = st.empty()
+                    if drift_metric_count > 0:
+                        info_placeholder.info('We found data drift and potential prediction errors! Time for re-labeling.', icon="❎")    
+                        total_drift += 1
                     else:
-                        info_placeholder.info('This image labeling is taken care of by the model.', icon="ℹ️")
-        
+                        info_placeholder.info('This image labeling is taken care of by the model.', icon="✅")
+
+            st.info(f"We need to re-label {total_drift} out of the {len(st.session_state['queries'])} input images", icon="ℹ️")
+                            
         with st.container():
             col1, col2 = st.columns(2)
             with col1:
