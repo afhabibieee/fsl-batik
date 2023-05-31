@@ -51,7 +51,7 @@ def objective(
         'dropout': trial.suggest_float('dropout', 0.0, 0.7, step=0.1)
     }
 
-    model = PrototypicalNetwork(backbone_name, search_params['dropout']).to(DEVICE)
+    model = PrototypicalNetwork(backbone_name, search_params['dropout'], mode='training').to(DEVICE)
     model = torch.compile(model, backend=backend) if compile else model
 
     accuracy = fit_model(mode, search_params, train_loader, val_loader, model, epochs, trial=trial)
