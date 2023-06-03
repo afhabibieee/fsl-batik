@@ -3,3 +3,7 @@ __pycache__/
 model/pytorch/checkpoint/*
 model/pytorch/best-model/*
 src/pytorch/data/**/*.json
+streamlit/batik
+streamlit/labeling
+streamlit/labeling.zip
+streamlit/model-registry
