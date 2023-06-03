@@ -79,7 +79,6 @@ def fit_model(mode, search_params, train_loader, val_loader, model, epochs, tria
         model.parameters(), lr=search_params['learning_rate'], weight_decay=search_params['weight_decay']
     )
 
-    best_val_acc = 0.0
     for epoch in range(1, epochs+1):
         train_loss, val_loss, train_acc, val_acc, train_epoch_time, val_epoch_time = train_per_epoch(
             model, criterion, optimizer, epoch,
@@ -96,13 +95,11 @@ def fit_model(mode, search_params, train_loader, val_loader, model, epochs, tria
                 'val_time: {:.4f}\n'.format(val_epoch_time)
             )
 
-            if val_acc > best_val_acc:
-                best_val_acc = val_acc
-                if not os.path.exists(MODEL_CHECKPOINT_DIR):
-                    os.makedirs(MODEL_CHECKPOINT_DIR)
-                torch.save(model.state_dict(), os.path.join(MODEL_CHECKPOINT_DIR, 'model.pt'))
-                mlflow.log_artifact(os.path.join(MODEL_CHECKPOINT_DIR, 'model.pt'), artifact_path='model')
-                print("Yeay! we found a new best model :')\n")
+            if not os.path.exists(MODEL_CHECKPOINT_DIR):
+                os.makedirs(MODEL_CHECKPOINT_DIR)
+            torch.save(model.state_dict(), os.path.join(MODEL_CHECKPOINT_DIR, 'model.pt'))
+            mlflow.log_artifact(os.path.join(MODEL_CHECKPOINT_DIR, 'model.pt'), artifact_path='model')
+            print("Yeay! we found a new best model :')\n")
 
             mlflow.log_metrics(
                 {
@@ -123,6 +120,9 @@ def fit_model(mode, search_params, train_loader, val_loader, model, epochs, tria
 
             # Add early stopping
             if train_acc >= 0.9 and (train_acc-val_acc) > 0.05:
+                print(f"Early stopping at epoch {epoch} for trial {trial.number} with value {val_acc}.")
+                break
+            elif train_acc <= 0.5:
                 print(f"Early stopping at epoch {epoch} for trial {trial.number} with value {val_acc}.")
                 break
 
@@ -159,7 +159,7 @@ def main():
     )
 
     val_loader = generate_loader(
-        'val',
+        'val_test',
         image_size=params.img_size,
         n_way=params.n_way,
         n_shot=params.n_shot,

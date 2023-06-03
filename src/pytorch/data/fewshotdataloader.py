@@ -46,14 +46,16 @@ def create_jsonfile(train_size, seed):
     train_motifs = random.sample(motifs, k=n_train_class)
 
     val_test = sorted(list(set(motifs).difference(train_motifs)))
-    n_val_class = int(round(len(val_test)/2))
-    random.seed(seed)
-    val_motifs = random.sample(val_test, k=n_val_class)
+    # n_val_class = int(round(len(val_test)/2))
+    # random.seed(seed)
+    # val_motifs = random.sample(val_test, k=n_val_class)
 
-    test_motifs = sorted(list(set(val_test).difference(val_motifs)))
+    # test_motifs = sorted(list(set(val_test).difference(val_motifs)))
 
-    files = ['train.json', 'val.json', 'test.json']
-    data = [train_motifs, val_motifs, test_motifs]
+    # files = ['train.json', 'val.json', 'test.json']
+    # data = [train_motifs, val_motifs, test_motifs]
+    files = ['train.json', 'val_test.json']
+    data = [train_motifs, val_test]
 
     for file, content in zip(files, data):
         with open(os.path.join(BATIK_SPECS_DIR, file), 'w') as outfile:
