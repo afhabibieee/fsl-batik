@@ -12,10 +12,12 @@ import os
 import zipfile
 import matplotlib.pyplot as plt
 import pandas as pd
-from dotenv import load_dotenv
 
-load_dotenv()
+st.set_page_config(page_title='Batik Motifs')
 
+os.environ['MLFLOW_TRACKING_URI'] = st.secrets['MLFLOW_TRACKING_URI']
+os.environ['MLFLOW_TRACKING_USERNAME'] = st.secrets['MLFLOW_TRACKING_USERNAME']
+os.environ['MLFLOW_TRACKING_PASSWORD'] = st.secrets['MLFLOW_TRACKING_PASSWORD']
 
 selected = option_menu(
     None, # "Main Menu",
@@ -32,7 +34,58 @@ selected = option_menu(
     }
 )
 
-if selected == 'Recognition':
+if selected == 'Home':
+    st.markdown("# Batik Motifs Recognition and Labeling Hub :rocket:")
+    st.write('---')
+    with st.container():
+        st.markdown("### :partying_face: Welcome to Batik Motifs Analysis")
+        p1 = """
+            Yo, welcome to our Batik Motif Recognition and Labeling project. This dope interactive platform is all about 
+            recognizing batik motifs using baddas machine learning technique, like prototypical networks. It can spot new 
+            batik motifs that haven't been trained before with just a few samples, no need to train the model again.
+        """
+        p2 = """
+            We also got some sick analytics features, like uncertainty analysis, to check how the model deals with data dirft 
+            and potential prediction errors. It's all about keeping tabs on the model's performance and staying on top of any 
+            funcky stuff that might pop up.
+        """
+        p3 = """
+            And we've also thrown in this dope semi-automatic labeing feature that allows for some sweet human-in-the-loop action. 
+            But here's the deal, we ain't updating the model based on new data or data drift for a few reasons (storage constraints, 
+            expert domain validation, ect). However, this feature still gives user the chance to contribute their expertise to the 
+            labeling process, strictly for their own spesific needs.
+        """
+        p4 = """
+            Are you a Batik enthusiast, a researcher, or just curious about the fascinating world of Batik? Well, this platform offer 
+            you an exciting and informative experience. Get ready to explore and immerse yourself in the captivating world of Batik!
+        """
+        # col1, col2 = st.columns(2)
+        st.write(p1)
+        st.write(p2)
+        st.write(p3)
+
+    with st.container():
+        st.markdown("### :woozy_face: Model Testing Benchmark")
+        st.write(
+            """
+            Benchmarking results for novel batik motif classes from the best model under various conditions.
+            [Notebook](https://dagshub.com/afhabibieee/fsl-batik/src/main/src/pytorch/test.ipynb) 
+            [Experiments](https://dagshub.com/afhabibieee/fsl-batik/experiments/#/)
+            """
+        )
+        df = pd.read_csv('best-model-benchmarks.csv', header=[0,1], index_col=0)
+        st.table(df)
+        st.info(
+            """
+            The above information can serve as reference for determining the number of classes and the number of images per class when 
+            using the model for recognition and labeling.
+            """
+        )
+    st.write('---')
+    st.write(p4)
+
+
+elif selected == 'Recognition':
     # st.session_state
     st.markdown("# #1 Let's find out what the batik pattern is! :male_mage:")
 
@@ -122,8 +175,8 @@ if selected == 'Recognition':
                 progress_bar = st.progress(0)
                 notification = st.empty()
 
-                b2_id = os.getenv('B2_KEY_ID')
-                b2_app_key = os.getenv('B2_APPLICATION_KEY')
+                b2_id = st.secrets['B2_KEY_ID']
+                b2_app_key = st.secrets['B2_APPLICATION_KEY']
                 b2_bucket = auth_load_bucket(b2_id, b2_app_key)
                 download_support_set(b2_bucket, selected_batik)
                 support_images, support_labels, label_decoded = get_support_images_and_labels(selected_batik, N_SHOT)
@@ -148,7 +201,7 @@ if selected == 'Recognition':
             st.write("Here's a collection of experiments that includes the parameters used and the metrics obtained")
             st.markdown('##### Table experiments')
             exp_data = get_table_experiment()
-            st.dataframe(data=exp_data.style.highlight_max(subset=['metrics.train_acc', 'metrics.val_acc'], axis=0))
+            st.dataframe(data=exp_data)
         
         with st.container():
             st.markdown('### :dart: Select Model')
@@ -400,8 +453,8 @@ elif selected == 'Labeling':
                 progress_bar = st.progress(0)
                 notification = st.empty()
 
-                b2_id = os.getenv('B2_KEY_ID')
-                b2_app_key = os.getenv('B2_APPLICATION_KEY')
+                b2_id = st.secrets['B2_KEY_ID']
+                b2_app_key = st.secrets['B2_APPLICATION_KEY']
                 b2_bucket = auth_load_bucket(b2_id, b2_app_key)
                 download_support_set(b2_bucket, selected_batik)
                 support_images, support_labels, label_decoded = get_support_images_and_labels(selected_batik, N_SHOT)
@@ -425,7 +478,7 @@ elif selected == 'Labeling':
             st.write("Here's a collection of experiments that includes the parameters used and the metrics obtained")
             st.markdown('##### Table experiments')
             exp_data = get_table_experiment()
-            st.dataframe(data=exp_data.style.highlight_max(subset=['metrics.train_acc', 'metrics.val_acc'], axis=0))
+            st.dataframe(data=exp_data)
         
         with st.container():
             st.markdown('### :dart: Select Model')

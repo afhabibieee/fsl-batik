@@ -1,8 +1,7 @@
-b2sdk
-python-dotenv
-ipykernel
-dvc[s3]
-mlflow
-matplotlib
-numpy
-streamlit
+b2sdk==1.21.0
+python-dotenv==1.0.0
+ipykernel==6.22.0
+dvc==2.56.0
+mlflow==2.3.1
+matplotlib==3.7.1
+numpy==1.24.1

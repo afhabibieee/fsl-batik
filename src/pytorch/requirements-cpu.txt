@@ -3,9 +3,9 @@
 # torchvision==0.14.0+cpu
 
 --extra-index-url https://download.pytorch.org/whl/cpu
-torch
-torchvision
-torchmetrics
+torch==2.0.1+cpu
+torchvision==0.15.2+cpu
+torchmetrics==0.11.4
 
 opencv-torchvision-transforms-yuzhiyang
-optuna
+optuna==3.1.1
