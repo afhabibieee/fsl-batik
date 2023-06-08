@@ -1,0 +1,3 @@
+[submodule "fsl-batik-app"]
+	path = fsl-batik-app
+	url = https://huggingface.co/spaces/afhabibieee/fsl-batik-app
