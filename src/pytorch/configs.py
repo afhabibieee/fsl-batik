@@ -8,7 +8,7 @@ MODEL_DIR = os.path.abspath('../../model/pytorch/')
 BEST_MODEL_DIR = os.path.abspath('../../model/pytorch/best-model')
 MODEL_CHECKPOINT_DIR = os.path.abspath('../../model/pytorch/checkpoint')
 
-IMAGE_SIZE = 84
+IMAGE_SIZE = 224 #84
 IMAGENET_MEAN  = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]
 
